@@ -15,9 +15,6 @@ def pseudo_ids()->List[str]:
     return ids_list
 
 
-#df = pd.read_csv(filename)
-#df.set_index('ID', inplace=True)
-
 data_frames:Dict[str,pd.core.frame.DataFrame] = {}
 
 #load transformation configuration file
@@ -69,13 +66,3 @@ for assessment_variable in keys:
 print(output)
 
 
-
-#start_load = time.time()
-
-##for x in range(102,192):    
-#    print(load_val(data_frames,'data/bigfiles/a1_data.csv','Column'+str(x),'316a03f0-93b6-3'))
-#    print(load_val(data_frames,'data/bigfiles/a2_data.csv','Column'+str(x),'316a03f0-93b6-3'))
-#    print(load_val(data_frames,'data/bigfiles/a3_data.csv','Column'+str(x),'316a03f0-93b6-3'))
-
-#end_load = time.time()
-#print(f"{90*3} seeks in {end_load-start_load} ms")

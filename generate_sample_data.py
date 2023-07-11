@@ -13,7 +13,7 @@ def generate_csv_file(filename, num_columns, num_rows):
         writer = csv.writer(csvfile)
         
         # Write header row
-        header = ['ID'] + [f'Column{i+100}' for i in range(2, num_columns + 1)]
+        header = ['ID'] + [f'Column{i}' for i in range(2, num_columns + 1)]
         writer.writerow(header)
         
         # Write data rows
@@ -34,7 +34,7 @@ def generate_csv_file(filename, num_columns, num_rows):
 # Generate the CSV file with 100 columns and 150,000 rows
 filename = 'data.csv'
 num_columns = 100
-num_rows = 150000
+num_rows = 5
 
 generate_csv_file(filename, num_columns, num_rows)
 print(f"CSV file '{filename}' generated successfully.")

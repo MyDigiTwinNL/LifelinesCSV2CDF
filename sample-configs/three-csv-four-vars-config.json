@@ -1,7 +1,7 @@
 {
-    "Column2": [{"1a":"data/bigfiles/a1_data.csv"},{"2a":"data/bigfiles/a2_data.csv"},{"3a":"data/bigfiles/a3_data.csv"}],
-    "Column3": [{"1a":"data/bigfiles/a1_data.csv"},{"2a":"data/bigfiles/a2_data.csv"},{"3a":"data/bigfiles/a3_data.csv"}],
-    "Column45": [{"2b":"data/bigfiles/a1_data.csv"},{"2c":"data/bigfiles/a2_data.csv"},{"2d":"data/bigfiles/a3_data.csv"}],
-    "Column64": [{"3a":"data/bigfiles/a1_data.csv"},{"3b":"data/bigfiles/a2_data.csv"},{"3c":"data/bigfiles/a3_data.csv"}]
+    "Column2": [{"1a":"samplecsv/bigfiles/a1_data.csv"},{"2a":"samplecsv/bigfiles/a2_data.csv"},{"3a":"samplecsv/bigfiles/a3_data.csv"}],
+    "Column3": [{"1a":"samplecsv/bigfiles/a1_data.csv"},{"2a":"samplecsv/bigfiles/a2_data.csv"},{"3a":"samplecsv/bigfiles/a3_data.csv"}],
+    "Column45": [{"2b":"samplecsv/bigfiles/a1_data.csv"},{"2c":"samplecsv/bigfiles/a2_data.csv"},{"2d":"samplecsv/bigfiles/a3_data.csv"}],
+    "Column64": [{"3a":"samplecsv/bigfiles/a1_data.csv"},{"3b":"samplecsv/bigfiles/a2_data.csv"},{"3c":"samplecsv/bigfiles/a3_data.csv"}]
 }
   

@@ -5,6 +5,8 @@ import json
 from typing import Set, Dict, List
 import uuid
 import argparse
+import csv
+import os
 
 def load_val(data_frames:Dict[str,pd.core.frame.DataFrame],file:str,col:str,id:str)->int:
     return (data_frames[file].loc[id])[col]
@@ -35,7 +37,7 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
     #create an indexed dataframe for each datafile
     for file in datafiles:
         data_frames[file] = pd.read_csv(file);
-        data_frames[file].set_index('ID',inplace=True)
+        data_frames[file].set_index('PROJECT_PSEUDO_ID',inplace=True)
     
     return data_frames
 
@@ -61,6 +63,15 @@ def generate_csd(id:str,config:dict,data_frames:Dict[str,pd.core.frame.DataFrame
     return output    
 
 
+def load_ids(ids_file)->List[str]:
+    content_list = List[str]
+
+    with open(ids_file, 'r') as f:
+        reader = csv.reader(f)
+        next(reader) # skip header
+        content_list = [row[0] for row in reader]
+    
+    return content_list
 
 
 def main():
@@ -75,9 +86,26 @@ def main():
     # Parse the command-line arguments
     args = parser.parse_args()
 
-    ## Generate the output files
-    #generate_output(args.ids_file, args.config_file, args.output_folder)
+    if not os.path.isfile(args.ids_file):
+        print(f"The specified file path '${args.ids_file}' does not exist.")
+        return
 
+    if not os.path.isfile(args.config_file):
+        print(f"The specified file path '${args.config_file}' does not exist.")
+        return
+
+
+    #load rows identifiers and transformation configuration settings
+    ids = load_ids(args.ids_file)
+    data_frames = load_and_index_csv_datafiles(args.config_file)
+
+    config_file = open(args.config_file)
+    config_params = json.load(config_file)
+
+
+    for id in ids:
+        participant_data = generate_csd(id,config_params,data_frames)
+        print(participant_data)
 
 if __name__ == '__main__':
     main()

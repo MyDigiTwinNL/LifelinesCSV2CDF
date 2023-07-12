@@ -13,7 +13,7 @@ def generate_csv_file(filename, num_columns, num_rows):
         writer = csv.writer(csvfile)
         
         # Write header row
-        header = ['ID'] + [f'Column{i}' for i in range(2, num_columns + 1)]
+        header = ['PROJECT_PSEUDO_ID'] + [f'Column{i}' for i in range(2, num_columns + 1)]
         writer.writerow(header)
         
         # Write data rows

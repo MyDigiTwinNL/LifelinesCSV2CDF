@@ -2,6 +2,8 @@ import csv
 import random
 import string
 import uuid
+import argparse
+import os
 
 # Generate a unique ID string
 def generate_unique_id(rownum:int) -> str:
@@ -31,11 +33,17 @@ def generate_csv_file(filename, num_columns, num_rows):
                     
             writer.writerow(row)
 
+
+# Get the absolute path of the folder containing this script
+# Set the output folder at './bigfiles' (currently in git's .gitignore)
+script_folder = os.path.abspath(os.path.dirname(__file__))
+output_folder = os.path.abspath(os.path.join(script_folder, '..', 'bigfiles','data.csv'))
+
 # Generate the CSV file with 100 columns and 150,000 rows
 filename = 'data.csv'
 num_columns = 100
 num_rows = 5
 
-generate_csv_file(filename, num_columns, num_rows)
+generate_csv_file(output_folder, num_columns, num_rows)
 print(f"CSV file '{filename}' generated successfully.")
 

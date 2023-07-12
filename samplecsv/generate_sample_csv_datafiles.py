@@ -4,6 +4,7 @@ import string
 import uuid
 import argparse
 import os
+import sys
 
 # Generate a unique ID string
 def generate_unique_id(rownum:int) -> str:
@@ -55,29 +56,39 @@ def generate_ids_file(filename:str, num_rows:int):
 
 
 
-# Get the absolute path of the folder containing this script
-# Set the output folder at './bigfiles' (currently in git's .gitignore)
-script_folder = os.path.abspath(os.path.dirname(__file__))
-output_folder = os.path.abspath(os.path.join(script_folder, 'bigfiles'))
+def main():
+    parser = argparse.ArgumentParser(description='Sample CSV datafiles generator.')
+    parser.add_argument('num_files', type=int, help='Number of CSV files to generate')
+    parser.add_argument('num_columns', type=int, help='Number of columns in each CSV file')
+    parser.add_argument('num_rows', type=int, help='Number of rows in each CSV file')
+    args = parser.parse_args()
 
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
+    num_files = args.num_files
+    num_columns = args.num_columns
+    num_rows = args.num_rows
 
-num_columns = 200
-num_rows = 150000
+    if num_files is None or num_columns is None or num_rows is None:
+        parser.print_help()
+        sys.exit(1)
 
-#generate_ids_file(os.path.abspath(os.path.join(output_folder, 'pseudo_ids.csv')), num_rows)
-#generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a1_data.csv')), num_columns, num_rows)
-#generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a2_data.csv')), num_columns, num_rows)
-#generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a3_data.csv')), num_columns, num_rows)
-generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a4_data.csv')), num_columns, num_rows)
-generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a5_data.csv')), num_columns, num_rows)
-generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a6_data.csv')), num_columns, num_rows)
-generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a7_data.csv')), num_columns, num_rows)
-generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a8_data.csv')), num_columns, num_rows)
-generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a9_data.csv')), num_columns, num_rows)
-generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a10_data.csv')), num_columns, num_rows)
+    # Get the absolute path of the folder containing this script
+    # Set the output folder at './bigfiles' (currently in git's .gitignore)
+    current_path = os.path.abspath(os.path.dirname(__file__))
+    output_folder = os.path.abspath(os.path.join(current_path, 'bigfiles'))
+    # create output folder if does not exist
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
+    generate_ids_file(os.path.abspath(os.path.join(output_folder, 'pseudo_ids.csv')), num_rows)
 
+    for i in range(num_files):
+        generate_csv_file(
+            os.path.abspath(os.path.join(output_folder, f'a{i+1}_data.csv')),
+            num_columns,
+            num_rows
+        )
 
+if __name__ == '__main__':
+    main()
 
 

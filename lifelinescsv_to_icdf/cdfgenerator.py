@@ -129,6 +129,9 @@ def main():
             with open(output_file, 'w') as json_file:
                 json.dump(participant_data, json_file)
             progress_count += 1
+            if progress_count%10000==0:
+                process_end_time = time.time()
+                print(f'{progress_count} files processed. Elapsed time: {process_end_time - process_start_time} sec ({progress_count/(process_end_time - process_start_time)} rows/s)')
         except Exception as e:
             process_end_time = time.time()
             print(f"An error occurred after processing {progress_count} rows: {str(e)}. Time elapsed: {process_end_time - process_start_time} sec.")               

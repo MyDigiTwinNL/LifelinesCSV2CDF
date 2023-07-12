@@ -64,7 +64,7 @@ if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
 num_columns = 200
-num_rows = 5
+num_rows = 150000
 
 generate_ids_file(os.path.abspath(os.path.join(output_folder, 'pseudo_ids.csv')), num_rows)
 generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a1_data.csv')), num_columns, num_rows)

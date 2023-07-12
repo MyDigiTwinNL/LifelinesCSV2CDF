@@ -32,18 +32,25 @@ def generate_csv_file(filename, num_columns, num_rows):
                     row.append(random.choice([1, 2]))
                     
             writer.writerow(row)
+        
+        print(f"CSV file '{filename}' generated successfully.")
 
 
 # Get the absolute path of the folder containing this script
 # Set the output folder at './bigfiles' (currently in git's .gitignore)
 script_folder = os.path.abspath(os.path.dirname(__file__))
-output_folder = os.path.abspath(os.path.join(script_folder, '..', 'bigfiles','data.csv'))
+output_folder = os.path.abspath(os.path.join(script_folder, 'bigfiles'))
 
-# Generate the CSV file with 100 columns and 150,000 rows
-filename = 'data.csv'
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
+
 num_columns = 100
 num_rows = 5
 
-generate_csv_file(output_folder, num_columns, num_rows)
-print(f"CSV file '{filename}' generated successfully.")
+generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a1_data.csv')), num_columns, num_rows)
+generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a2_data.csv')), num_columns, num_rows)
+generate_csv_file(os.path.abspath(os.path.join(output_folder, 'a3_data.csv')), num_columns, num_rows)
+
+
+
 

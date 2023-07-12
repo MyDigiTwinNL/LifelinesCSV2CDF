@@ -107,7 +107,7 @@ def main():
     data_frames = load_and_index_csv_datafiles(args.config_file)
     load_end_time = time.time()
 
-    print(f"Data loaded and indexed in {load_end_time - load_start_time} seconds.")
+    print(f"{len(data_frames)} CSV files loaded and indexed in {load_end_time - load_start_time} seconds.")
 
     process = psutil.Process()
     memory_usage = process.memory_info().rss / 1024 ** 2

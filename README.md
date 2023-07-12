@@ -4,9 +4,9 @@
 Cohort studies play a crucial role in understanding the relationships between various factors and health outcomes over time. These studies collect extensive data from participants, including demographic information, clinical variables, lifestyle factors, and biomarkers. However, analyzing cohort study data often poses challenges, particularly when assessing variables across different time points. The data for the same variable is typically scattered across multiple files, each representing a specific assessment or follow-up visit. This fragmentation makes it difficult to perform comprehensive longitudinal analyses, or in the particular case of the MyDigiTwin project, to compute multiple points in time of the same variable to map it to standards like FHIR/MedMij.
  
 
-This tool transform cohort study data files in CSV (Comma-Separated Values) format into a format we called CDF/JSON (Cohort Data Format), which is already used by other data analysis tools in the MyDigiTwin project. A CDF format describes all the variables, and their values over time (i.e., each assessment), of an individual study participant. This format is particularly useful for the generation of FHIR/MedMij compliant data (one of the aforementioned analysis tools). 
+This tool transforms cohort study data files in CSV (Comma-Separated Values) format into a format we called CDF/JSON (Cohort Data Format), which is already used by other data analysis tools in the MyDigiTwin project. A CDF format describes all the variables, and their values over time (i.e., each assessment), of an individual study participant. This format is particularly useful for the generation of FHIR/MedMij-compliant data (one of the aforementioned analysis tools). 
 
-To illustrate what the tool does, consider the following three files, which contain values for the same variables (VariableX, VariableY and VariableZ), collected in three different assessments (a1, a2, a3), for three participants (9f0.., 961...,e84...):
+To illustrate what the tool does, consider the following three files, which contain values for the same variables (VariableX, VariableY, and VariableZ), collected in three different assessments (a1, a2, a3), for three participants (9f0.., 961...,e84...):
 
 **a1_file.csv (first assessment datafile)**
 ```` 
@@ -74,7 +74,7 @@ You can generate sample datafiles in the folder 'samplecsv/bigfiles' (folder inc
 
 ## Data transformation
 
-To transform the sample datafiles (or the actual files), you must first define the location of the different assessment of the variables you need to process. You can use the sample configuration files in 'sample-configs' for reference. You also need to provide a CSV file with all the IDs (participants) that are expected to be included in the transformations (the sample data generator previously mentioned generates one: 'samplecsv/bigfiles/pseudo_ids.csv')
+To transform the sample data files (or the actual files), you must first define the location of the different assessments of the variables you need to process. You can use the sample configuration files in 'sample-configs' for reference. You also need to provide a CSV file with all the IDs (participants) that are expected to be included in the transformations (the sample data generator previously mentioned generates one: 'samplecsv/bigfiles/pseudo_ids.csv')
 
 ````
     python lifelinescsv_to_icdf/cdfgenerator.py <file with ids> <config file> <output folder>

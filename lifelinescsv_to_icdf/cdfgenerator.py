@@ -7,6 +7,8 @@ import uuid
 import argparse
 import csv
 import os
+import sys
+import psutil
 
 def load_val(data_frames:Dict[str,pd.core.frame.DataFrame],file:str,col:str,id:str)->int:
     return (data_frames[file].loc[id])[col]
@@ -42,9 +44,7 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
     return data_frames
 
 
-    #start_load = time.time()
-    #end_load = time.time()
-
+    
     #print(f"Data indexed in {end_load-start_load} ms")
 
 
@@ -58,7 +58,8 @@ def generate_csd(id:str,config:dict,data_frames:Dict[str,pd.core.frame.DataFrame
         for varversion in var_assessment_files:
             assessment_name = list(varversion.keys())[0]
             assessment_file = list(varversion.values())[0]                 
-            var_assessments[assessment_name] = load_val(data_frames,assessment_file,assessment_variable,id)    
+            # Return each value encapsulated in quotes
+            var_assessments[assessment_name] = str(load_val(data_frames,assessment_file,assessment_variable,id))
         output[assessment_variable]=var_assessments
     return output    
 
@@ -76,7 +77,7 @@ def load_ids(ids_file)->List[str]:
 
 def main():
     # Create the command-line argument parser
-    parser = argparse.ArgumentParser(description='Generate JSON output files based on a configuration.')
+    parser = argparse.ArgumentParser(description='Transform Lifelines CSV files into CDF (cohort-data JSON format).')
 
     # Add the command-line arguments
     parser.add_argument('ids_file', help='Path to the CSV file with a list of IDs.')
@@ -94,18 +95,47 @@ def main():
         print(f"The specified file path '${args.config_file}' does not exist.")
         return
 
+    if not os.path.exists(args.output_folder):
+        print(f"The specified output folder path '${args.output_folder}' does not exist.")
+        return
+
 
     #load rows identifiers and transformation configuration settings
+    
+    load_start_time = time.time()
     ids = load_ids(args.ids_file)
     data_frames = load_and_index_csv_datafiles(args.config_file)
+    load_end_time = time.time()
+
+    print(f"Data loaded and indexed in {load_end_time - load_start_time} seconds.")
+
+    process = psutil.Process()
+    memory_usage = process.memory_info().rss / 1024 ** 2
+
+    print(f"Total memory usage: {memory_usage} MB")
+
 
     config_file = open(args.config_file)
     config_params = json.load(config_file)
 
+    progress_count = 0;
 
+
+    process_start_time = time.time()
     for id in ids:
-        participant_data = generate_csd(id,config_params,data_frames)
-        print(participant_data)
+        try:
+            participant_data = generate_csd(id,config_params,data_frames)
+            output_file = os.path.join(args.output_folder,id+".cdf.json")        
+            with open(output_file, 'w') as json_file:
+                json.dump(participant_data, json_file)
+            progress_count += 1
+        except Exception as e:
+            process_end_time = time.time()
+            print(f"An error occurred after processing {progress_count} rows: {str(e)}. Time elapsed: {process_end_time - process_start_time} sec.")               
+            sys.exit(1)     
+
+    process_end_time = time.time()
+    print(f"{progress_count} files created on {args.output_folder} in {process_end_time - process_start_time} sec.")   
 
 if __name__ == '__main__':
     main()

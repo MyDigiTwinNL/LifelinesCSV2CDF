@@ -32,7 +32,7 @@ PROJECT_PSEUDO_ID,VariableX,VariableY,VariableZ
 "e84e5122-f9d3-3","56","1","38"
 ````
 
-Let's assume that only the variables VariableX and VariableZ are needed in the analysis. To perform the transformation, a configuration file, indicating in which file is each assessment of each variable, is needed:
+Let's assume that only the variables VariableX and VariableZ are needed in the analysis. To perform the transformation, a configuration file, indicating in which file each assessment of each variable is, can be defined as follows:
 
 **configuration.json**
 ````

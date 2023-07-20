@@ -75,7 +75,6 @@ def generate_csd(participant_id:str,config:dict,data_frames:Dict[str,pd.core.fra
                 else:
                     logging.info(f'Skipping value: Missing value code ({var_value}) in assessment {varversion} of variable {assessment_variable}')
             except MissingParticipantRowException as mr:
-                print(f'Skipping value: Missing row for participant [{participant_id}] in file [{assessment_file}] when looking for of variable {assessment_variable}')
                 logging.info(f'Skipping value: Missing row for participant [{participant_id}] in file [{assessment_file}]  when looking for of variable {assessment_variable}')
                         
         output[assessment_variable]=var_assessments

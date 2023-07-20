@@ -9,10 +9,17 @@ import csv
 import os
 import sys
 import psutil
+import logging
+from lifelinescsv_to_icdf.missing_participant_row_exception import MissingParticipantRowException
 
-def load_val(data_frames:Dict[str,pd.core.frame.DataFrame],file:str,col:str,id:str)->int:
-    return (data_frames[file].loc[id])[col]
-    
+def load_val(data_frames:Dict[str,pd.core.frame.DataFrame],file:str,col:str,participant_id:str)->int:
+    try:
+        val = (data_frames[file].loc[participant_id])[col]
+        return val;
+    except KeyError as ke:
+        raise MissingParticipantRowException(ke)    
+
+
 def pseudo_ids()->List[str]:
     ids_list:List[str] = []
     for i in range(2,99):
@@ -48,10 +55,10 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
     #print(f"Data indexed in {end_load-start_load} ms")
 
 
-def generate_csd(id:str,config:dict,data_frames:Dict[str,pd.core.frame.DataFrame])->dict:
+def generate_csd(participant_id:str,config:dict,data_frames:Dict[str,pd.core.frame.DataFrame])->dict:
     assessment_variables = config.keys()
     
-    output = {"PROJECT_PSEUDO_ID":{"1A":id}}
+    output = {"PROJECT_PSEUDO_ID":{"1A":participant_id}}
     for assessment_variable in assessment_variables:
         var_assessments = {}
         var_assessment_files = config[assessment_variable]
@@ -59,8 +66,20 @@ def generate_csd(id:str,config:dict,data_frames:Dict[str,pd.core.frame.DataFrame
             assessment_name = list(varversion.keys())[0]
             assessment_file = list(varversion.values())[0]                 
             # Return each value encapsulated in quotes
-            var_assessments[assessment_name] = str(load_val(data_frames,assessment_file,assessment_variable,id))
+
+            try:
+                var_value = str(load_val(data_frames,assessment_file,assessment_variable,participant_id));
+                #skip missing values (start with '$' in lifelines)
+                if var_value[0]!='$':
+                    var_assessments[assessment_name] = str(load_val(data_frames,assessment_file,assessment_variable,participant_id))
+                else:
+                    logging.info(f'Skipping value: Missing value code ({var_value}) in assessment {varversion} of variable {assessment_variable}')
+            except MissingParticipantRowException as mr:
+                print(f'Skipping value: Missing row for participant [{participant_id}] in file [{assessment_file}] when looking for of variable {assessment_variable}')
+                logging.info(f'Skipping value: Missing row for participant [{participant_id}] in file [{assessment_file}]  when looking for of variable {assessment_variable}')
+                        
         output[assessment_variable]=var_assessments
+
     return output    
 
 

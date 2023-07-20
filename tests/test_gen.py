@@ -100,6 +100,7 @@ class CSVFilesToCDF(unittest.TestCase):
         self.assertEqual(cdfgenerator.generate_csd('participantC',config,df_dict),expected_output_participantC,"CSV (with missing values) to CDF transformation not generating the expected output.")
 
 
+
     def test_transformation_with_dropped_participants(self):      
 
         #Dataframes indexed by PROJECT_PSEUDO_ID
@@ -134,11 +135,15 @@ class CSVFilesToCDF(unittest.TestCase):
 
         # If a participant is not included on a particular file (e.g., dropped the study), this will be
         # reported as a missign value
+
+        #1B and 3B of 'var1' and 'var2' (which are on 'file_b') are not included for participantA's row, 
+        # as there is no row for him on 'file_b'
         expected_output_participantA = {
             'PROJECT_PSEUDO_ID':{"1A":'participantA'},
-            'var1':{"1B":"20","1C":"100"},
-            'var2':{"3A":"2","3B":"12"}     
+            'var1':{"1A":"1","1C":"100"},
+            'var2':{"3A":"2","3C":"200"}     
         }
+
   
         expected_output_participantC = {
             'PROJECT_PSEUDO_ID':{"1A":'participantC'},

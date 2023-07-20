@@ -10,7 +10,7 @@ import os
 import sys
 import psutil
 import logging
-from lifelinescsv_to_icdf.missing_participant_row_exception import MissingParticipantRowException
+from .missing_participant_row_exception import MissingParticipantRowException
 
 def load_val(data_frames:Dict[str,pd.core.frame.DataFrame],file:str,col:str,participant_id:str)->int:
     try:

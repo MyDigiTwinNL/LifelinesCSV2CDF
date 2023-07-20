@@ -142,7 +142,7 @@ python samplecsv/generate_sample_csv_datafiles.py  10 200 150000
 To transform the sample data files (or the actual files), you must first define the location of the different assessments of the variables you need to process. You can use the sample configuration files in 'sample-configs' for reference. You also need to provide a CSV file with all the IDs (participants) that are expected to be included in the transformations (the sample data generator previously mentioned generates one: 'samplecsv/bigfiles/pseudo_ids.csv')
 
 ````
-python lifelinescsv_to_icdf/cdfgenerator.py <file with ids> <config file> <output folder>
+python -m lifelinescsv_to_icdf.cdfgenerator <file with ids> <config file> <output folder>
 
 ````
 

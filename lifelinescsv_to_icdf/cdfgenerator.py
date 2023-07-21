@@ -39,7 +39,7 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
 
     #create an indexed dataframe for each datafile
     for file in datafiles:
-        data_frames[file] = pd.read_csv(file,na_filter=False);        
+        data_frames[file] = pd.read_csv(file,na_filter=False,dtype=str);        
         data_frames[file].set_index('project_pseudo_id',inplace=True)
         process = psutil.Process()
         memory_usage = process.memory_info().rss / 1024 ** 2

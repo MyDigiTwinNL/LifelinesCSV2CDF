@@ -21,13 +21,6 @@ def load_val(data_frames:Dict[str,pd.core.frame.DataFrame],file:str,col:str,part
         raise MissingParticipantRowException(ke)    
 
 
-def pseudo_ids()->List[str]:
-    ids_list:List[str] = []
-    for i in range(2,99):
-        ids_list.append(str(uuid.uuid3(uuid.NAMESPACE_DNS,"row"+str(i)))[:15])
-    return ids_list
-
-
 def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame.DataFrame]:
 
     data_frames:Dict[str,pd.core.frame.DataFrame] = {}
@@ -46,8 +39,13 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
 
     #create an indexed dataframe for each datafile
     for file in datafiles:
-        data_frames[file] = pd.read_csv(file,na_filter=False);
+        data_frames[file] = pd.read_csv(file,na_filter=False);        
         data_frames[file].set_index('project_pseudo_id',inplace=True)
+        process = psutil.Process()
+        memory_usage = process.memory_info().rss / 1024 ** 2
+
+        print(f"{file} loaded and indexed. Total memory usage: {memory_usage} MB")
+
     
     return data_frames
 
@@ -148,7 +146,7 @@ def main():
             with open(output_file, 'w') as json_file:
                 json.dump(participant_data, json_file)
             progress_count += 1
-            if progress_count%10000==0:
+            if progress_count%100==0:
                 process_end_time = time.time()
                 print(f'{progress_count} files processed. Elapsed time: {process_end_time - process_start_time} sec ({progress_count/(process_end_time - process_start_time)} rows/s)')
         except Exception as e:

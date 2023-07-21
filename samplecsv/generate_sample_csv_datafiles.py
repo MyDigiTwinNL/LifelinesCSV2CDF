@@ -16,7 +16,7 @@ def generate_csv_file(filename:str, num_columns:int, num_rows:int):
         writer = csv.writer(csvfile, quoting=csv.QUOTE_NONE, quotechar='', escapechar='\\')
         
         # Write header row
-        header = ['PROJECT_PSEUDO_ID'] + [f'Column{i}' for i in range(2, num_columns + 1)]
+        header = ['project_pseudo_id'] + [f'Column{i}' for i in range(2, num_columns + 1)]
         writer.writerow(header)
         
         # Write data rows
@@ -43,7 +43,7 @@ def generate_ids_file(filename:str, num_rows:int):
         writer = csv.writer(csvfile, quoting=csv.QUOTE_NONE, quotechar='', escapechar='\\')
         
         # Write header row
-        header = ['PROJECT_PSEUDO_ID']
+        header = ['project_pseudo_id']
         writer.writerow(header)
         
         # Write data rows
@@ -61,11 +61,13 @@ def main():
     parser.add_argument('num_files', type=int, help='Number of CSV files to generate')
     parser.add_argument('num_columns', type=int, help='Number of columns in each CSV file')
     parser.add_argument('num_rows', type=int, help='Number of rows in each CSV file')
+    parser.add_argument('-o', '--output', type=str, default='./bigfiles', help='Output folder path')
     args = parser.parse_args()
 
     num_files = args.num_files
     num_columns = args.num_columns
     num_rows = args.num_rows
+    output_folder = args.output
 
     if num_files is None or num_columns is None or num_rows is None:
         parser.print_help()
@@ -74,11 +76,17 @@ def main():
     # Get the absolute path of the folder containing this script
     # Set the output folder at './bigfiles' (currently in git's .gitignore)
     current_path = os.path.abspath(os.path.dirname(__file__))
-    output_folder = os.path.abspath(os.path.join(current_path, 'bigfiles'))
-    # create output folder if does not exist
+
+    # If a custom output folder is provided, use it; otherwise, use the default './bigfiles'
+    if output_folder != './bigfiles':
+        output_folder = os.path.abspath(output_folder)
+    else:
+        output_folder = os.path.abspath(os.path.join(current_path, 'bigfiles'))
+
+    # create output folder if it does not exist
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-    
+
     generate_ids_file(os.path.abspath(os.path.join(output_folder, 'pseudo_ids.csv')), num_rows)
 
     for i in range(num_files):
@@ -90,5 +98,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-

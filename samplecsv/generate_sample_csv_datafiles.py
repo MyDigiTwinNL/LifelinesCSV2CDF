@@ -26,10 +26,10 @@ def generate_csv_file(filename:str, num_columns:int, num_rows:int):
             
             for j in range(2, num_columns + 1):
                 if j % 2 == 0:
-                    # 50% chance of integer value
+                    row.append("")
+                elif j % 5 == 0:                    
                     row.append('"'+str(random.randint(1, 100))+'"')
                 else:
-                    # 50% chance of 1 or 2
                     row.append('"'+str(random.choice([1, 2]))+'"')
                     
             writer.writerow(row)

@@ -10,6 +10,7 @@ import os
 import sys
 import psutil
 import logging
+import traceback
 from .missing_participant_row_exception import MissingParticipantRowException
 
 def load_val(data_frames:Dict[str,pd.core.frame.DataFrame],file:str,col:str,participant_id:str)->int:
@@ -45,8 +46,8 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
 
     #create an indexed dataframe for each datafile
     for file in datafiles:
-        data_frames[file] = pd.read_csv(file);
-        data_frames[file].set_index('PROJECT_PSEUDO_ID',inplace=True)
+        data_frames[file] = pd.read_csv(file,na_filter=False);
+        data_frames[file].set_index('project_pseudo_id',inplace=True)
     
     return data_frames
 
@@ -58,7 +59,7 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
 def generate_csd(participant_id:str,config:dict,data_frames:Dict[str,pd.core.frame.DataFrame])->dict:
     assessment_variables = config.keys()
     
-    output = {"PROJECT_PSEUDO_ID":{"1A":participant_id}}
+    output = {"project_pseudo_id":{"1a":participant_id}}
     for assessment_variable in assessment_variables:
         var_assessments = {}
         var_assessment_files = config[assessment_variable]
@@ -70,7 +71,7 @@ def generate_csd(participant_id:str,config:dict,data_frames:Dict[str,pd.core.fra
             try:
                 var_value = str(load_val(data_frames,assessment_file,assessment_variable,participant_id));
                 #skip missing values (start with '$' in lifelines)
-                if var_value[0]!='$':
+                if var_value!='' and var_value[0]!='$':
                     var_assessments[assessment_name] = str(load_val(data_frames,assessment_file,assessment_variable,participant_id))
                 else:
                     logging.info(f'Skipping value: Missing value code ({var_value}) in assessment {varversion} of variable {assessment_variable}')
@@ -151,6 +152,7 @@ def main():
                 process_end_time = time.time()
                 print(f'{progress_count} files processed. Elapsed time: {process_end_time - process_start_time} sec ({progress_count/(process_end_time - process_start_time)} rows/s)')
         except Exception as e:
+            traceback.print_exc()
             process_end_time = time.time()
             print(f"An error occurred after processing {progress_count} rows: {str(e)}. Time elapsed: {process_end_time - process_start_time} sec.")               
             sys.exit(1)     

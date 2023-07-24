@@ -65,8 +65,9 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
         #load only the needed columns
         logging.info(f"Loading and indexing {file}. Columns:{required_csv_columns[file]}")        
         data_frames[file] = pd.read_csv(file,na_filter=False,dtype=str,usecols=required_csv_columns[file]);  
-        logging.info(str(data_frames[file]))
+        logging.info(str(data_frames[file]))      
         data_frames[file].set_index('project_pseudo_id',inplace=True)
+        data_frames[file] = data_frames[file].sort_values(by='project_pseudo_id')
         process = psutil.Process()
         memory_usage = process.memory_info().rss / 1024 ** 2
 

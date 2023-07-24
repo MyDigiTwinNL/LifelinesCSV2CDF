@@ -11,7 +11,12 @@ import sys
 import psutil
 import logging
 import traceback
-from .missing_participant_row_exception import MissingParticipantRowException
+from .transformation_exceptions import MissingParticipantRowException
+from .transformation_exceptions import MoreThanOneValueInAssessmentVariants
+
+
+# Set the log level to INFO
+logging.basicConfig(level=logging.INFO)
 
 def load_val(data_frames:Dict[str,pd.core.frame.DataFrame],file:str,col:str,participant_id:str)->int:
     try:
@@ -36,9 +41,6 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
     #key: 'file name', value: list of variables to be read in such a file
     required_csv_columns:Dict[str,set] = {}
 
-    #required_csv_columns = list(assessment_variables).copy();
-    #required_csv_columns.append('project_pseudo_id');
-
     datafiles:Set[str] = set()
 
 
@@ -61,14 +63,14 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
     for file in datafiles:
         
         #load only the needed columns
-        print(f"Loading and indexing {file}. Columns:{required_csv_columns[file]}")        
+        logging.info(f"Loading and indexing {file}. Columns:{required_csv_columns[file]}")        
         data_frames[file] = pd.read_csv(file,na_filter=False,dtype=str,usecols=required_csv_columns[file]);  
-        print(str(data_frames[file]))
+        logging.info(str(data_frames[file]))
         data_frames[file].set_index('project_pseudo_id',inplace=True)
         process = psutil.Process()
         memory_usage = process.memory_info().rss / 1024 ** 2
 
-        print(f"{file} loaded and indexed. Total memory usage: {memory_usage} MB")
+        logging.info(f"{file} loaded and indexed. Total memory usage: {memory_usage} MB")
 
     
     return data_frames
@@ -76,27 +78,67 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
     #print(f"Data indexed in {end_load-start_load} ms")
 
 
+
+
+def get_single_non_empty_value(series:pd.core.series.Series)->str:
+    variant_values = series.values.tolist()    
+
+    non_empty_values:List = list(filter(lambda element: len(element)>0,variant_values));
+    
+    if len(non_empty_values) == 0:
+        return '';
+    elif len(non_empty_values) == 1:
+        return non_empty_values[0];
+    else:
+        raise MoreThanOneValueInAssessmentVariants(f'Two or more values found on an assessment variant:{non_empty_values}');
+    
+
+
 def generate_csd(participant_id:str,config:dict,data_frames:Dict[str,pd.core.frame.DataFrame])->dict:
     assessment_variables = config.keys()
     
     output = {"project_pseudo_id":{"1a":participant_id}}
     for assessment_variable in assessment_variables:
+
         var_assessments = {}
         var_assessment_files = config[assessment_variable]
+
         for varversion in var_assessment_files:
             assessment_name = list(varversion.keys())[0]
             assessment_file = list(varversion.values())[0]                 
             # Return each value encapsulated in quotes
 
             try:
-                var_value = str(load_val(data_frames,assessment_file,assessment_variable,participant_id));
-                #skip missing values (start with '$' in lifelines)
-                if var_value!='' and var_value[0]!='$':
-                    var_assessments[assessment_name] = str(load_val(data_frames,assessment_file,assessment_variable,participant_id))
+
+                
+                var_value = load_val(data_frames,assessment_file,assessment_variable,participant_id)
+
+                
+                if isinstance(var_value,str):
+
+                    var_str_value = str(var_value);
+                    #skip missing values (start with '$' in lifelines)
+                    if var_str_value!='' and var_str_value[0]!='$':
+                        var_assessments[assessment_name] = var_str_value;
+                    else:
+                        logging.debug(f'Skipping value: Missing value code ({var_value}) in assessment {varversion} of variable {assessment_variable}')
+
+                # when the datafile has multiple rows with the same pseudo-id (due to having multiple variants of the questionnaire),
+                # the dataframe stores an Object series, with one row for each duplicate value. 
+                elif isinstance(var_value,pd.core.series.Series):
+                    logging.debug(f'Processing multiple rows for variable{assessment_variable} in file {assessment_file}')
+                    try:
+                        var_assessments[assessment_name] = get_single_non_empty_value(var_value)
+                    except MoreThanOneValueInAssessmentVariants as e:                    
+                        logging.error(f"Variable {assessment_variable} has multiple non-empty values for the pseudo_id '{var_value.index.tolist()[0]}' in the file {assessment_file}. Aborting.")
+                        os.abort()
                 else:
-                    logging.info(f'Skipping value: Missing value code ({var_value}) in assessment {varversion} of variable {assessment_variable}')
+                    logging.error(f"Unsupported type:{type(var_value)} found while processing variable {assessment_variable} in the file {assessment_file}. Aborting");
+                    os.abort()
+
+                
             except MissingParticipantRowException as mr:
-                logging.info(f'Skipping value: Missing row for participant [{participant_id}] in file [{assessment_file}]  when looking for of variable {assessment_variable}')
+                logging.debug(f'Skipping value: Missing row for participant [{participant_id}] in file [{assessment_file}]  when looking for of variable {assessment_variable}')
                         
         output[assessment_variable]=var_assessments
 
@@ -146,12 +188,12 @@ def main():
     data_frames = load_and_index_csv_datafiles(args.config_file)
     load_end_time = time.time()
 
-    print(f"{len(data_frames)} CSV files loaded and indexed in {load_end_time - load_start_time} seconds.")
+    logging.info(f"{len(data_frames)} CSV files loaded and indexed in {load_end_time - load_start_time} seconds.")
 
     process = psutil.Process()
     memory_usage = process.memory_info().rss / 1024 ** 2
 
-    print(f"Total memory usage: {memory_usage} MB")
+    logging.info(f"Total memory usage: {memory_usage} MB")
 
 
     config_file = open(args.config_file)
@@ -170,7 +212,7 @@ def main():
             progress_count += 1
             if progress_count%100==0:
                 process_end_time = time.time()
-                print(f'{progress_count} files processed. Elapsed time: {process_end_time - process_start_time} sec ({progress_count/(process_end_time - process_start_time)} rows/s)')
+                logging.info(f'{progress_count} files processed. Elapsed time: {process_end_time - process_start_time} sec ({progress_count/(process_end_time - process_start_time)} rows/s)')
         except Exception as e:
             traceback.print_exc()
             process_end_time = time.time()

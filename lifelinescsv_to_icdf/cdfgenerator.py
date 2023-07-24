@@ -45,9 +45,11 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
     #get the CSV files that are needed for the transformation
     for assessment_variable in assessment_variables:
         var_assessment_files = data[assessment_variable]
+
+        #get the files, and their respective columns that need to be read
         for varversion in var_assessment_files:
-            #set of files that need to be read
             filename:str = list(varversion.values())[0]     
+            
             datafiles.add(filename)
 
             if not filename in required_csv_columns:

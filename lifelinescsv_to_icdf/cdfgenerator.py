@@ -29,17 +29,39 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
     f = open(config_file_path)
     data = json.load(f)
     assessment_variables = data.keys();
-    datafiles:Set[set] = set()
+
+    #default set of columns that must be loaded (regardless the configuration)
+    default_columns:Set[str] = {'project_pseudo_id'}
+
+    #key: 'file name', value: list of variables to be read in such a file
+    required_csv_columns:Dict[str,set] = {}
+
+    #required_csv_columns = list(assessment_variables).copy();
+    #required_csv_columns.append('project_pseudo_id');
+
+    datafiles:Set[str] = set()
+
 
     #get the CSV files that are needed for the transformation
     for assessment_variable in assessment_variables:
         var_assessment_files = data[assessment_variable]
-        for varversion in var_assessment_files:        
-            datafiles.add(list(varversion.values())[0])
+        for varversion in var_assessment_files:
+            #set of files that need to be read
+            filename:str = list(varversion.values())[0]     
+            datafiles.add(filename)
+
+            if not filename in required_csv_columns:
+                required_csv_columns[filename]=default_columns.copy()
+
+            required_csv_columns[filename].add(assessment_variable)
 
     #create an indexed dataframe for each datafile
     for file in datafiles:
-        data_frames[file] = pd.read_csv(file,na_filter=False,dtype=str);        
+        
+        #load only the needed columns
+        print(f"Loading and indexing {file}. Columns:{required_csv_columns[file]}")        
+        data_frames[file] = pd.read_csv(file,na_filter=False,dtype=str,usecols=required_csv_columns[file]);  
+        print(str(data_frames[file]))
         data_frames[file].set_index('project_pseudo_id',inplace=True)
         process = psutil.Process()
         memory_usage = process.memory_info().rss / 1024 ** 2
@@ -48,8 +70,6 @@ def load_and_index_csv_datafiles(config_file_path:str) -> Dict[str,pd.core.frame
 
     
     return data_frames
-
-
     
     #print(f"Data indexed in {end_load-start_load} ms")
 
@@ -82,7 +102,7 @@ def generate_csd(participant_id:str,config:dict,data_frames:Dict[str,pd.core.fra
 
 
 def load_ids(ids_file)->List[str]:
-    content_list = List[str]
+    content_list:List[str] = []
 
     with open(ids_file, 'r') as f:
         reader = csv.reader(f)

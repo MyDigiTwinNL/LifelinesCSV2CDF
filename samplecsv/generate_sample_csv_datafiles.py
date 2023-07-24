@@ -16,7 +16,7 @@ def generate_csv_file(filename:str, num_columns:int, num_rows:int):
         writer = csv.writer(csvfile, quoting=csv.QUOTE_NONE, quotechar='', escapechar='\\')
         
         # Write header row
-        header = ['project_pseudo_id'] + [f'Column{i}' for i in range(2, num_columns + 1)]
+        header = ['"'+'project_pseudo_id'+'"'] + ['"'+f"Column{i}"+'"' for i in range(2, num_columns + 1)]
         writer.writerow(header)
         
         # Write data rows

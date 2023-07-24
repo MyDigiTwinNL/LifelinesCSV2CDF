@@ -128,12 +128,13 @@ To set up and run the Python program, follow these steps:
 You can generate sample data files in the folder 'samplecsv/bigfiles' (folder included in the .gitignore). The following command generates N files, each one with C columns and R rows. By default, the first column will be 'PROJECT_PSEUDO_ID', and the following will be named 'Column1', 'Column2', ..., 'ColumnC'. For each row, a unique ID will be generated (but the same IDs will be used on each one of the N files):
 
 ````
-python samplecsv/generate_sample_csv_datafiles.py  N C R
+python -m samplecsv.generate_sample_csv_datafiles  N C R
 ````
 For example, for generating ten CSV files, each one with 150000 rows and 200 columns (variables)
 
 ````
-python samplecsv/generate_sample_csv_datafiles.py  10 200 150000
+
+python  -m samplecsv.generate_sample_csv_datafiles  10 200 150000
 ````
 
 

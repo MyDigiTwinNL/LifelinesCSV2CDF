@@ -18,6 +18,13 @@ from .transformation_exceptions import MoreThanOneValueInAssessmentVariants
 # Set the log level to INFO
 logging.basicConfig(level=logging.INFO)
 
+#"variant_id"
+#  "date":
+#  "age"
+#  "gender"       
+#  "zip_code": 
+
+
 def load_val(data_frames:Dict[str,pd.core.frame.DataFrame],file:str,col:str,participant_id:str)->int:
     try:
         val = (data_frames[file].loc[participant_id])[col]
@@ -98,6 +105,9 @@ def get_single_non_empty_value(series:pd.core.series.Series)->str:
 def generate_csd(participant_id:str,config:dict,data_frames:Dict[str,pd.core.frame.DataFrame])->dict:
     assessment_variables = config.keys()
     
+    #variables that are on all datafiles
+    default_vars = ["project_pseudo_id","variant_id","date","age","gender","zip_code"]
+
     output = {"project_pseudo_id":{"1a":participant_id}}
     for assessment_variable in assessment_variables:
 
@@ -125,11 +135,16 @@ def generate_csd(participant_id:str,config:dict,data_frames:Dict[str,pd.core.fra
                         logging.debug(f'Skipping value: Missing value code ({var_value}) in assessment {varversion} of variable {assessment_variable}')
 
                 # when the datafile has multiple rows with the same pseudo-id (due to having multiple variants of the questionnaire),
-                # the dataframe stores an Object series, with one row for each duplicate value. 
+                # rather than an string, pandas returns an Series object, with one row for each value.
+                # It is expected that only one non-empty element is in the series, except for the default variables.
                 elif isinstance(var_value,pd.core.series.Series):
                     logging.debug(f'Processing multiple rows for variable{assessment_variable} in file {assessment_file}')
                     try:
-                        var_assessments[assessment_name] = get_single_non_empty_value(var_value)
+                        #the default variables are always duplicated across multiple variants, the first value is returned.
+                        if assessment_variable in default_vars:                            
+                            var_assessments[assessment_name] = var_value.values.tolist()[0];
+                        else:
+                            var_assessments[assessment_name] = get_single_non_empty_value(var_value)
                     except MoreThanOneValueInAssessmentVariants as e:                    
                         logging.error(f"Variable {assessment_variable} has multiple non-empty values for the pseudo_id '{var_value.index.tolist()[0]}' in the file {assessment_file}. Aborting.")
                         os.abort()

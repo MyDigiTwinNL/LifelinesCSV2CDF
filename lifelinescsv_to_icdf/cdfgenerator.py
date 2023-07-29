@@ -154,7 +154,10 @@ def generate_csd(participant_id:str,config:dict,data_frames:Dict[str,pd.core.fra
 
                 
             except MissingParticipantRowException as mr:
-                logging.debug(f'Skipping value: Missing row for participant [{participant_id}] in file [{assessment_file}]  when looking for of variable {assessment_variable}')
+                #for consistency, the value of a variable a given patient assessment is reported as missing ("") when
+                #there is no row for the participant in the datafile
+                var_assessments[assessment_name] = ""
+                logging.debug(f'Missing row: missing row for participant [{participant_id}] in file [{assessment_file}]  when looking for of variable {assessment_variable} (reported as missing data)')
                         
         output[assessment_variable]=var_assessments
 

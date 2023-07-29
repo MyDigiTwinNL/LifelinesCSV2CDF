@@ -128,11 +128,11 @@ def generate_csd(participant_id:str,config:dict,data_frames:Dict[str,pd.core.fra
                 if isinstance(var_value,str):
 
                     var_str_value = str(var_value);
-                    #skip missing values (start with '$' in lifelines)
+                    #Missing values (with $X code) will be returned as empty strings (convention on the tools that will use the CDF format)
                     if var_str_value!='' and var_str_value[0]!='$':
                         var_assessments[assessment_name] = var_str_value;
                     else:
-                        logging.debug(f'Skipping value: Missing value code ({var_value}) in assessment {varversion} of variable {assessment_variable}')
+                        var_assessments[assessment_name] = "";                        
 
                 # when the datafile has multiple rows with the same pseudo-id (due to having multiple variants of the questionnaire),
                 # rather than an string, pandas returns an Series object, with one row for each value.

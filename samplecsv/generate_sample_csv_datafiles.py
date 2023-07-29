@@ -25,8 +25,10 @@ def generate_csv_file(filename:str, num_columns:int, num_rows:int):
             row = [generate_unique_id(i)]  # ID column
             
             for j in range(2, num_columns + 1):
-                if j % 2 == 0:
+                if j % 7 == 0:
                     row.append("")
+                elif j % 11 == 0:
+                    row.append("$6")          
                 elif j % 5 == 0:                    
                     row.append('"'+str(random.randint(1, 100))+'"')
                 else:

@@ -86,13 +86,13 @@ class CSVFilesToCDF(unittest.TestCase):
 
         expected_output_participantA = {
             'project_pseudo_id':{"1a":'participantA'},
-            'var1':{"1b":"20","1c":"100"},
-            'var2':{"3a":"2","3b":"12"}     
+            'var1':{"1a":"","1b":"20","1c":"100"},
+            'var2':{"3a":"2","3b":"12","3c":""}     
         }
   
         expected_output_participantC = {
             'project_pseudo_id':{"1a":'participantC'},
-            'var1':{"1a":"7"},
+            'var1':{"1a":"7","1b":"","1c":""},
             'var2':{"3a":"6","3b":"26","3c":"600"}     
         }
                 
@@ -133,15 +133,17 @@ class CSVFilesToCDF(unittest.TestCase):
 
         expected_output_participantA = {
             'project_pseudo_id':{"1a":'participantA'},
-            'var1':{"1b":"20","1c":"100"},
-            'var2':{"3a":"2","3b":"12"}     
+            'var1':{"1a":"","1b":"20","1c":"100"},
+            'var2':{"3a":"2","3b":"12","3c":""}     
         }
   
         expected_output_participantC = {
             'project_pseudo_id':{"1a":'participantC'},
-            'var1':{"1a":"7"},
+            'var1':{"1a":"7","1b":"","1c":""},
             'var2':{"3a":"6","3b":"26","3c":"600"}     
         }
+
+
                 
         self.assertEqual(cdfgenerator.generate_csd('participantA',config,df_dict),expected_output_participantA,"CSV (with missing values) to CDF transformation not generating the expected output.")
         self.assertEqual(cdfgenerator.generate_csd('participantC',config,df_dict),expected_output_participantC,"CSV (with missing values) to CDF transformation not generating the expected output.")
@@ -188,8 +190,8 @@ class CSVFilesToCDF(unittest.TestCase):
         # as there is no row for him on 'file_b'
         expected_output_participantA = {
             'project_pseudo_id':{"1a":'participantA'},
-            'var1':{"1a":"1","1c":"100"},
-            'var2':{"3a":"2","3c":"200"}     
+            'var1':{"1a":"1","1b":"","1c":"100"},
+            'var2':{"3a":"2","3b":"","3c":"200"}     
         }
 
   

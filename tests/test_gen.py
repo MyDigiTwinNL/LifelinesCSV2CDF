@@ -14,7 +14,8 @@ class CSVFilesToCDF(unittest.TestCase):
                                'var2':  ['2'           ,'5'          ,'6']}
         file_b = {'project_pseudo_id':  ['participantA','participantB','participantC'],
                                'var1':  ['20'          ,'90'          ,'70'],
-                               'var2':  ['12'          ,'15'          ,'26']}
+                               'var2':  ['12'          ,'15'          ,'26'],
+                               'varN':  ['2001-1'      ,'2001-2'      ,'2001-3']}                
         file_c = {'project_pseudo_id':  ['participantA','participantB','participantC'],
                                'var1':  ['100'         ,'500'         ,'700'],
                                'var2':  ['200'         ,'500'         ,'600']}
@@ -36,17 +37,21 @@ class CSVFilesToCDF(unittest.TestCase):
 
         config['var1'] = [{"1a":'file_a'},{'1b':'file_b'},{'1c':'file_c'}]
         config['var2'] = [{"3a":'file_a'},{'3b':'file_b'},{'3c':'file_c'}]
+        config['varN'] = [{"general":'file_b'}]
+
 
         expected_output_participantA = {
             'project_pseudo_id':{"1a":'participantA'},
             'var1':{"1a":"1","1b":"20","1c":"100"},
-            'var2':{"3a":"2","3b":"12","3c":"200"}     
+            'var2':{"3a":"2","3b":"12","3c":"200"} ,
+            'varN':{"general":"2001-1"}    
         }
 
         expected_output_participantC = {
             'project_pseudo_id':{"1a":'participantC'},
             'var1':{"1a":"7","1b":"70","1c":"700"},
-            'var2':{"3a":"6","3b":"26","3c":"600"}     
+            'var2':{"3a":"6","3b":"26","3c":"600"},
+            'varN':{"general":"2001-3"}         
         }
   
         self.assertEqual(cdfgenerator.generate_csd('participantA',config,df_dict),expected_output_participantA,"CSV to CDF transformation not generating the expected output.")
